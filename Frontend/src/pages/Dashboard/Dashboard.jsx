@@ -17,7 +17,7 @@ import CreateNotification from "../../components/DashboardComponents/Notificatio
 // 1. Refactored menuItems with Icons and Subtitles
 const menuItems = [
     { name: "Overview", icon: <Home size={20} />, subtitle: "Go-to-ward home", component: <Overview /> },
-    { name: "Add Memory", icon: <PlusCircle size={20} />, subtitle: "Upload stories & media", component: <AddMemory familyId={2}/> },
+    // { name: "Add Memory", icon: <PlusCircle size={20} />, subtitle: "Upload stories & media", component: <AddMemory familyId={2}/> },
     { name: "Timeline", icon: <Clock size={20} />, subtitle: "Life events timeline", component: <TimelinePage /> }, // Removed unnecessary familyId prop from TimelinePage
     { name: "Family Tree", icon: <TreePalm size={20} />, subtitle: "Family relationships", component: <FamilyTree /> },
     { name: "Search", icon: <Search size={20} />, subtitle: "Find memories", component: <SearchComponent /> },

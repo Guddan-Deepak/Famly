@@ -15,7 +15,7 @@ export default function FamilyPDFGenerator({ familyId }) {
 
       // ✅ POST to backend (make sure backend route is POST)
       const response = await api.post(
-        `/pdf/families/${familyId}/stories`, 
+        `/pdf/`, 
         { title, subtitle, description },
         { responseType: "blob" } // we expect PDF blob
       );

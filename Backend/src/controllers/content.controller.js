@@ -114,6 +114,7 @@ const createStory = asyncHandler(async (req, res) => {
     ? [mediaTextRaw]
     : [];
 
+    console.log("hit hua")
 
   if (!title || !family_id) {
     throw new ApiError(400, "Title and family_id are required");
