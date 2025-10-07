@@ -19,10 +19,10 @@ const menuItems = [
     { name: "Overview", icon: <Home size={20} />, subtitle: "Go-to-ward home", component: <Overview /> },
     // { name: "Add Memory", icon: <PlusCircle size={20} />, subtitle: "Upload stories & media", component: <AddMemory familyId={2}/> },
     { name: "Timeline", icon: <Clock size={20} />, subtitle: "Life events timeline", component: <TimelinePage /> }, // Removed unnecessary familyId prop from TimelinePage
-    { name: "Family Tree", icon: <TreePalm size={20} />, subtitle: "Family relationships", component: <FamilyTree /> },
+    { name: "Family Tree", icon: <TreePalm size={20} />, subtitle: "Family relationships", component: <FamilyTree /> }, 
     { name: "Search", icon: <Search size={20} />, subtitle: "Find memories", component: <SearchComponent /> },
-    { name: "Export ", icon: <Search size={20} />, subtitle: "Get PDF", component: <FamilyPDFGenerator  familyId={2}/> },
-    { name: "Notificatoin ", icon: <Search size={20} />, subtitle: "Create Notification", component: <CreateNotification /> },
+    { name: "Export ", icon: <Search size={20} />, subtitle: "Get PDF", component: <FamilyPDFGenerator  /> },
+    { name: "Notification ", icon: <Search size={20} />, subtitle: "Create Notification", component: <CreateNotification /> },
     
 ];
 

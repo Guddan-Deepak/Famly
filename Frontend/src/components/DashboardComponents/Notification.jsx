@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../../utils/axios"; // ← your axios instance
+import api from "../../utils/axios"; 
 
 export default function CreateNotification() {
   const [type, setType] = useState("general");

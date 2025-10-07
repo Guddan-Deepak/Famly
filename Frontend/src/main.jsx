@@ -35,8 +35,6 @@ const router=createBrowserRouter(
       <Route path="member-family/:familyId" element={<MemberFamilyPage/>} />
       <Route path="create-family" element={<CreateFamilyForm/>} />
       <Route path="join-family-through-code" element={<JoinFamilyCard/>} />
-        
-
     </Route>
 
   )
