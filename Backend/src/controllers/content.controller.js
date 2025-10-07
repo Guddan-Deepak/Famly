@@ -535,6 +535,7 @@ const getFamilyStoriesDesc = asyncHandler(async (req, res) => {
 
 
 // future aspects
+
 // const updateStory = asyncHandler(async (req, res) => {
 //   const { storyId } = req.params;
 //   const { caption, deleteMediaIndexes = [], mediaText = [] } = req.body; // deleteMediaIndexes: array of indexes in story.media

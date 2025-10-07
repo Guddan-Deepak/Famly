@@ -1,12 +1,12 @@
 
 
 
-
+import { Link } from 'react-router-dom'
 import { useEffect, useState, useCallback } from "react";
-import axios from "../../utils/axios"; 
+import axios from "../../utils/axios";
 import { useAuth } from "../../utils/authContext";
 import AddStory from './AddStory';
-import CreateGroup from './CreateGroup'; 
+import CreateGroup from './CreateGroup';
 
 
 // --- Icons (Using standard SVG for simplicity, replace with Heroicons or similar if available) ---
@@ -45,7 +45,7 @@ const JoinGroupForm = ({ onGroupJoined }) => {
         e.preventDefault();
         setError(null);
         setSuccess(null);
-        
+
         const trimmedCode = inviteCode.trim();
         if (!trimmedCode) {
             setError("Invite code cannot be empty.");
@@ -61,7 +61,7 @@ const JoinGroupForm = ({ onGroupJoined }) => {
 
             setSuccess("Successfully joined the group!");
             setInviteCode('');
-            onGroupJoined(); 
+            onGroupJoined();
 
         } catch (err) {
             const errorMessage = err.response?.data?.message || 'Failed to join group.';
@@ -75,7 +75,7 @@ const JoinGroupForm = ({ onGroupJoined }) => {
     return (
         <div className="mt-4 p-5 bg-gray-50 rounded-xl border border-gray-200 shadow-sm">
             <h3 className="text-lg font-bold mb-3 text-gray-700">Join Private Group</h3>
-            
+
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -86,7 +86,7 @@ const JoinGroupForm = ({ onGroupJoined }) => {
                     disabled={isSubmitting}
                     required
                 />
-                
+
                 {error && (
                     <p className="text-xs text-red-600 mb-2 p-1 bg-red-50 border border-red-200 rounded-md">
                         {error}
@@ -124,10 +124,10 @@ export default function PrivateGroups() {
     const [isFetchingDetails, setIsFetchingDetails] = useState(false);
     const [error, setError] = useState(null);
     // State for managing description expansion in the sidebar
-    const [expandedDescriptions, setExpandedDescriptions] = useState({}); 
+    const [expandedDescriptions, setExpandedDescriptions] = useState({});
     // State to toggle the AddStory component/modal
-    const [showAddStoryModal, setShowAddStoryModal] = useState(false); 
-    const [showCreateGroupModal, setShowCreateGroupModal] = useState(false); 
+    const [showAddStoryModal, setShowAddStoryModal] = useState(false);
+    const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
 
     // --- NEW STATE: Store the createdBy ID of the selected group for permission checks ---
     const [selectedGroupOwnerId, setSelectedGroupOwnerId] = useState(null);
@@ -137,13 +137,13 @@ export default function PrivateGroups() {
 
     const fetchGroupDetails = useCallback(async (groupId) => {
         if (!groupId) return;
-        
-        setSelectedGroup(groupId); 
+
+        setSelectedGroup(groupId);
         setIsFetchingDetails(true);
-        setStories([]); 
+        setStories([]);
         setMembers([]);
         setError(null);
-        setSelectedGroupOwnerId(null); 
+        setSelectedGroupOwnerId(null);
 
         try {
             const [storyRes, detailRes] = await Promise.all([
@@ -151,9 +151,9 @@ export default function PrivateGroups() {
                 axios.get(`/private-group/${groupId}`),
             ]);
 
-            setStories(storyRes.data?.data?.stories || []); 
-            setMembers(detailRes.data?.data?.members || []); 
-            
+            setStories(storyRes.data?.data?.stories || []);
+            setMembers(detailRes.data?.data?.members || []);
+
             // ✅ CAPTURE GROUP OWNER ID HERE
             const ownerId = detailRes.data?.data?.createdBy;
             setSelectedGroupOwnerId(ownerId);
@@ -171,7 +171,7 @@ export default function PrivateGroups() {
         if (selectedGroup) {
             fetchGroupDetails(selectedGroup);
         }
-    }, [selectedGroup, fetchGroupDetails]); 
+    }, [selectedGroup, fetchGroupDetails]);
 
     // 🆕 Function to refresh the ENTIRE group list and select the first one (used for initial load and after creation/deletion/joining)
     const reFetchGroupsAndSelectFirst = useCallback(async () => {
@@ -180,7 +180,7 @@ export default function PrivateGroups() {
             const res = await axios.get("/private-group/my");
             const groupsData = res?.data?.data || [];
             setGroups(groupsData);
-            
+
             // Immediately select the first group if the list is not empty
             if (groupsData.length > 0) {
                 await fetchGroupDetails(groupsData[0]._id);
@@ -202,8 +202,8 @@ export default function PrivateGroups() {
     // --- Data Fetching: Groups List (Runs once on mount) ---
 
     useEffect(() => {
-        reFetchGroupsAndSelectFirst(); 
-    }, [reFetchGroupsAndSelectFirst]); 
+        reFetchGroupsAndSelectFirst();
+    }, [reFetchGroupsAndSelectFirst]);
 
     // --- Actions ---
 
@@ -217,7 +217,7 @@ export default function PrivateGroups() {
     // 🆕 Handle Group Deletion API call and UI refresh
     const handleDeleteGroup = async (groupId, groupName) => {
         const groupToDeleteName = groupName || groups.find(g => g._id === groupId)?.name || "this group";
-        
+
         if (!window.confirm(`Are you sure you want to permanently delete the group "${groupToDeleteName}"? This action cannot be undone.`)) {
             return;
         }
@@ -225,10 +225,10 @@ export default function PrivateGroups() {
         try {
             // API route: DELETE /private-group/:groupId
             await axios.delete(`/private-group/${groupId}`);
-            
+
             // Refresh the entire group list and re-select the first one (or clear the view)
             reFetchGroupsAndSelectFirst();
-            
+
         } catch (err) {
             console.error("❌ Error deleting group:", err.response?.data || err.message);
             alert("Failed to delete the group. Only the group owner can perform this action.");
@@ -238,7 +238,7 @@ export default function PrivateGroups() {
     // 🆕 Handle Leave Group API call and UI refresh
     const handleLeaveGroup = async (groupId, groupName) => {
         const groupToLeaveName = groupName || groups.find(g => g._id === groupId)?.name || "this group";
-        
+
         if (!window.confirm(`Are you sure you want to leave the group "${groupToLeaveName}"? You will need an invite code to rejoin.`)) {
             return;
         }
@@ -246,10 +246,10 @@ export default function PrivateGroups() {
         try {
             // API route: DELETE /private-group/:groupId/members/me
             await axios.delete(`/private-group/${groupId}/members/me`);
-            
+
             // Refresh the entire group list and re-select the first one (or clear the view)
             reFetchGroupsAndSelectFirst();
-            
+
         } catch (err) {
             console.error("❌ Error leaving group:", err.response?.data || err.message);
             alert("Failed to leave the group. The owner cannot leave; they must delete or transfer ownership.");
@@ -258,7 +258,7 @@ export default function PrivateGroups() {
 
     const handleDeleteStory = async (storyId) => {
         if (!window.confirm("Are you sure you want to delete this story? This cannot be undone.")) return;
-        
+
         if (!selectedGroup) {
             console.error("Cannot delete story: No group selected.");
             return;
@@ -283,12 +283,12 @@ export default function PrivateGroups() {
 
     // Handler to open the AddStory component/modal
     const handleAddStory = () => {
-        setShowAddStoryModal(true); 
+        setShowAddStoryModal(true);
     };
-    
+
     // Handler to open the Create Group modal
     const handleOpenCreateGroup = () => {
-        setShowCreateGroupModal(true); 
+        setShowCreateGroupModal(true);
     };
 
 
@@ -301,17 +301,17 @@ export default function PrivateGroups() {
             </div>
         );
     }
-    
+
     const currentGroupName = groups.find(g => g._id === selectedGroup)?.name;
 
     // Determine if the currently logged-in user has permission to delete the story
     const userHasDeletePermission = (story) => {
         const currentUserId = auth?.user?.user_id;
         const storyCreatorId = story.createdBy?.user_id;
-        
+
         const isCreator = currentUserId === storyCreatorId;
         const isGroupOwner = Number(currentUserId) === Number(selectedGroupOwnerId);
-        
+
         return isCreator || isGroupOwner;
     };
 
@@ -324,27 +324,27 @@ export default function PrivateGroups() {
             {/* 1. Add Story MODAL */}
             {showAddStoryModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-                    <AddStory 
-                        privateGroupId={selectedGroup} 
+                    <AddStory
+                        privateGroupId={selectedGroup}
                         onClose={() => setShowAddStoryModal(false)}
-                        onStoryAdded={() => { 
+                        onStoryAdded={() => {
                             setShowAddStoryModal(false);
                             refreshStoryFeed();
-                        }} 
+                        }}
                     />
                 </div>
             )}
-            
+
             {/* 2. Create Group MODAL */}
             {showCreateGroupModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-                    <CreateGroup 
+                    <CreateGroup
                         onClose={() => setShowCreateGroupModal(false)}
-                        onGroupCreated={() => { 
+                        onGroupCreated={() => {
                             setShowCreateGroupModal(false);
                             // Refresh the whole group list and auto-select the new one
-                            reFetchGroupsAndSelectFirst(); 
-                        }} 
+                            reFetchGroupsAndSelectFirst();
+                        }}
                     />
                 </div>
             )}
@@ -359,12 +359,12 @@ export default function PrivateGroups() {
                         groups.map((group) => {
                             const isSelected = selectedGroup === group._id;
                             const isDescriptionExpanded = expandedDescriptions[group._id];
-                            const shortDescription = group.description?.substring(0, 70); 
+                            const shortDescription = group.description?.substring(0, 70);
                             const needsExpansion = group.description && group.description.length > 70;
-                            
+
                             // Check if current user is the group owner
                             const isGroupOwner = String(group.createdBy) === String(auth?.user?.user_id);
-                            
+
                             // Check if current user is a member (assumed true if visible, but used to restrict owner from leaving)
                             const isMember = group.members.some(m => String(m.user_id) === String(auth?.user?.user_id));
 
@@ -373,11 +373,10 @@ export default function PrivateGroups() {
                                     key={group._id}
                                     // 🔑 FIX APPLIED: This is the main group selection click area
                                     onClick={() => handleGroupClick(group._id)}
-                                    className={`cursor-pointer p-3 rounded-xl transition-all duration-200 border-2 ${
-                                        isSelected
-                                            ? `bg-purple-600 text-white border-purple-600 shadow-xl`
-                                            : `bg-white hover:bg-purple-50 text-gray-800 border-gray-200 hover:border-purple-400`
-                                    }`}
+                                    className={`cursor-pointer p-3 rounded-xl transition-all duration-200 border-2 ${isSelected
+                                        ? `bg-purple-600 text-white border-purple-600 shadow-xl`
+                                        : `bg-white hover:bg-purple-50 text-gray-800 border-gray-200 hover:border-purple-400`
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start">
                                         {/* Group Info Section */}
@@ -426,7 +425,7 @@ export default function PrivateGroups() {
                                             {isDescriptionExpanded ? group.description : shortDescription}
                                             {needsExpansion && (
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); toggleDescription(group._id); }} 
+                                                    onClick={(e) => { e.stopPropagation(); toggleDescription(group._id); }}
                                                     className={`ml-1 text-xs font-medium underline ${isSelected ? 'text-purple-200 hover:text-white' : 'text-purple-600 hover:text-purple-800'}`}
                                                 >
                                                     {isDescriptionExpanded ? 'Less' : 'View More'}
@@ -445,7 +444,7 @@ export default function PrivateGroups() {
             <div className="flex-1 p-8 overflow-y-auto bg-purple-50">
                 <div className="flex justify-between items-center mb-6 border-b-2 border-purple-200 pb-4">
                     <h2 className="text-3xl font-bold text-purple-800">
-                        Stories 
+                        Stories
                         {selectedGroup && <span className="text-gray-600 ml-3">({currentGroupName})</span>}
                     </h2>
                     {selectedGroup && (
@@ -458,7 +457,7 @@ export default function PrivateGroups() {
                         </button>
                     )}
                 </div>
-                
+
                 {isFetchingDetails ? (
                     <div className="text-center p-10 text-xl text-purple-500">Fetching memories... 🔄</div>
                 ) : stories.length === 0 ? (
@@ -478,19 +477,25 @@ export default function PrivateGroups() {
                                     {/* Story Header and User Info */}
                                     <div className="flex justify-between items-start mb-5">
                                         <div className="flex items-center space-x-3">
-                                            <img
-                                                src={story.createdBy?.profilePhoto || 'https://via.placeholder.com/150/EEEEEE/808080?text=👤'}
-                                                alt={story.createdBy?.fullname || 'User'}
-                                                className="w-14 h-14 rounded-full object-cover border-4 border-purple-100 shadow-md"
-                                            />
-                                            <div>
-                                                <p className="font-extrabold text-lg text-gray-800">
-                                                    {story.createdBy?.fullname}
-                                                </p>
-                                                <p className="text-sm text-purple-500">
-                                                    @{story.createdBy?.username}
-                                                </p>
-                                            </div>
+                                            <Link
+                                                to={`/user/${story.createdBy?.user_id}`}
+                                                className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50"
+                                            >
+                                                <img
+                                                    src={story.createdBy?.profilePhoto || 'https://via.placeholder.com/150/EEEEEE/808080?text=👤'}
+                                                    alt={story.createdBy?.fullname || 'User'}
+                                                    className="w-14 h-14 rounded-full object-cover border-4 border-purple-100 shadow-md"
+                                                />
+                                                <div>
+                                                    <p className="font-extrabold text-lg text-gray-800">
+                                                        {story.createdBy?.fullname}
+                                                    </p>
+                                                    <p className="text-sm text-purple-500">
+                                                        @{story.createdBy?.username}
+                                                    </p>
+                                                </div>
+                                            </Link>
+
                                         </div>
 
                                         {/* Owner Actions */}
@@ -560,12 +565,12 @@ export default function PrivateGroups() {
                     <p className="text-sm font-medium text-purple-800 mb-3">Start a new private group.</p>
                     <button
                         className={`w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg shadow-purple-300/50`}
-                        onClick={handleOpenCreateGroup} 
+                        onClick={handleOpenCreateGroup}
                     >
                         ➕ New Private Group
                     </button>
                 </div>
-                
+
                 {/* 🆕 JOIN GROUP FORM INTEGRATION */}
                 <JoinGroupForm onGroupJoined={reFetchGroupsAndSelectFirst} />
                 {/* 🔚 END JOIN GROUP FORM */}
@@ -582,15 +587,21 @@ export default function PrivateGroups() {
                                 key={member.user_id}
                                 className="flex items-center bg-gray-50 p-3 rounded-xl border border-gray-200 shadow-sm transition-shadow hover:shadow-md"
                             >
-                                <img
-                                    src={member.profilePhoto || 'https://via.placeholder.com/150/EEEEEE/808080?text=👤'}
-                                    alt={member.fullname}
-                                    className="w-10 h-10 rounded-full object-cover mr-3 border-2 border-purple-300 shadow-sm"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-semibold text-sm truncate">{member.fullname}</p>
-                                    <p className="text-xs text-gray-500 truncate">@{member.username}</p>
-                                </div>
+                                <Link
+                                    to={`/user/${member.user_id}`}
+                                    className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50"
+                                >
+                                    <img
+                                        src={member.profilePhoto || 'https://via.placeholder.com/150/EEEEEE/808080?text=👤'}
+                                        alt={member.fullname}
+                                        className="w-10 h-10 rounded-full object-cover mr-3 border-2 border-purple-300 shadow-sm"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-sm truncate">{member.fullname}</p>
+                                        <p className="text-xs text-gray-500 truncate">@{member.username}</p>
+                                    </div>
+                                </Link>
+
                                 <span className={`ml-2 text-xs font-medium px-2 py-1 rounded-full capitalize ${member.role === 'owner' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' : 'bg-gray-200 text-gray-600 border border-gray-300'}`}>
                                     {member.role}
                                 </span>

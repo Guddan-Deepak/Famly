@@ -1,182 +1,9 @@
 
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import api from "../../utils/axios";
-// import { useAuth } from "../../utils/authContext";
-
-
-// import AddMemberCard from "../../components/family/AddMemberForm";
-// import AddRootMemberCard from "../../components/family/AddRootMemberForm";
-// import UpdateFamilyForm from "../../components/family/UpdateFamily";
-// import RemoveFamilyMembersCard from "../../components/family/RemoveMember";
-// import DeleteFamilyCard from "../../components/family/DeleteFamilyCard";
-// import FamilyStoriesForm from "../../components/family/AllFamilyStory"
-
-// export default function OwnerFamilyPage() {
-//   const { auth } = useAuth();
-//   const user = auth?.user;
-//   const currentUserUserId = user?.user_id;
-
-//   const { familyId } = useParams();
-//   const [familyDetails, setFamilyDetails] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [selectedComponentName, setSelectedComponentName] = useState("Overview");
-
-//   // Fetch family details
-//   useEffect(() => {
-//     if (!familyId) return;
-
-//     const fetchFamilyDetails = async () => {
-//       try {
-//         const res = await api.get(`/family/${familyId}`);
-//         setFamilyDetails(res.data.data);
-//       } catch (err) {
-//         console.error("Error fetching family details:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchFamilyDetails();
-//   }, [familyId]);
-
-//   if (loading) {
-//     return <div className="p-8 text-center">Loading family details...</div>;
-//   }
-
-//   if (!familyDetails) {
-//     return <div className="p-8 text-center text-red-500">Family not found.</div>;
-//   }
-
-//   // Dashboard menu
-//   const menuItems = [
-//     { name: "Overview", component: <FamilyStoriesForm familyId={familyId} /> },
-//     //{ name: "Create New Family", component: <CreateFamilyForm /> },
-//     { name: "Add New Member", component: <AddMemberCard familyId={familyId} /> },
-//     { name: "Add Root Member", component: <AddRootMemberCard /> },
-//     { name: "Update Family Details", component: <UpdateFamilyForm familyId={familyId} /> },
-//     { name: "Manage Members", component: <RemoveFamilyMembersCard familyId={familyId} /> },
-//     { name: "Delete Family", component: <DeleteFamilyCard familyId={familyId} /> },
-//   ];
-
-//   const selectedComponent = menuItems.find(
-//     (item) => item.name === selectedComponentName
-//   )?.component;
-
-//   const { family_name, familyPhoto, maleRoot, femaleRoot, invitation_code, marriage_date, memberships } = familyDetails;
-
-//   return (
-//     <div className="flex flex-col h-screen">
-//       {/* 🌟 Family Info Header */}
-//       <div className="bg-white shadow-lg border border-purple-300 rounded-2xl p-5 m-4 flex items-center space-x-6">
-//         {/* Family Image */}
-//         <div className="w-28 h-28 rounded-xl overflow-hidden border-2 border-purple-500 flex-shrink-0">
-//           <img
-//             src={familyPhoto || "https://via.placeholder.com/150"}
-//             alt={family_name}
-//             className="w-full h-full object-cover"
-//           />
-//         </div>
-
-//         {/* Family Info */}
-//         <div className="flex-1">
-//           <h1 className="text-2xl font-bold text-purple-700">{family_name}</h1>
-
-//           <div className="mt-2 grid grid-cols-2 gap-x-6 text-sm text-gray-700">
-//             <p>
-//               👑 <span className="font-semibold">Male Root:</span>{" "}
-//               {maleRoot ? maleRoot.fullname : "N/A"}
-//             </p>
-//             <p>
-//               👑 <span className="font-semibold">Female Root:</span>{" "}
-//               {femaleRoot ? femaleRoot.fullname : "N/A"}
-//             </p>
-//             <p>
-//               💍 <span className="font-semibold">Marriage Date:</span>{" "}
-//               {marriage_date ? new Date(marriage_date).toLocaleDateString() : "N/A"}
-//             </p>
-//             <p>
-//               🔐 <span className="font-semibold">Invitation Code:</span>{" "}
-//               <span className="text-purple-600 font-mono">{invitation_code}</span>
-//             </p>
-//           </div>
-
-//           {/* Members */}
-//           <div className="mt-4 flex -space-x-3 overflow-hidden">
-//             {memberships?.slice(0, 6).map((m) => (
-//               <img
-//                 key={m.id}
-//                 src={
-//                   m.user.profilePhoto ||
-//                   "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-//                 }
-//                 alt={m.user.fullname}
-//                 title={m.user.fullname}
-//                 className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-//               />
-//             ))}
-//             {memberships?.length > 6 && (
-//               <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-semibold text-sm border-2 border-white">
-//                 +{memberships.length - 6}
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* 🌿 Main Layout Below Header */}
-//       <div className="flex flex-1 overflow-hidden">
-//         {/* Main Content */}
-//         <main className="flex-1 p-6 overflow-y-auto">{selectedComponent}</main>
-
-//         {/* Sidebar */}
-//         <aside className="w-72 bg-white border-l text-lg font-bold text-gray-800 p-4 border-2 border-purple-600 rounded-lg overflow-y-auto">
-//           <div className="rounded-lg mb-8">
-//             <h2 className="text-lg font-bold text-gray-800">
-//               Manage {familyDetails.family_name}
-//             </h2>
-//             <p className="text-sm font-semibold text-gray-500">
-//               Explore your family's story
-//             </p>
-//           </div>
-
-//           <nav className="space-y-2">
-//             {menuItems.map((item) => {
-//               const isActive = selectedComponentName === item.name;
-//               return (
-//                 <button
-//                   key={item.name}
-//                   onClick={() => setSelectedComponentName(item.name)}
-//                   className={`w-full flex items-center space-x-4 p-3 rounded-lg transition-all duration-200 text-left ${
-//                     isActive
-//                       ? "bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white shadow-md"
-//                       : "text-purple-700 hover:bg-purple-50"
-//                   }`}
-//                 >
-//                   <div>
-//                     <p
-//                       className={`font-semibold ${
-//                         isActive ? "text-white" : "text-gray-800"
-//                       }`}
-//                     >
-//                       {item.name}
-//                     </p>
-//                   </div>
-//                 </button>
-//               );
-//             })}
-//           </nav>
-//         </aside>
-//       </div>
-//     </div>
-//   );
-// }
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../utils/axios";
 import { useAuth } from "../../utils/authContext";
-
+import { Link } from "react-router-dom";
 import AddMemberCard from "../../components/family/AddMemberForm";
 import AddRootMemberCard from "../../components/family/AddRootMemberForm";
 import UpdateFamilyForm from "../../components/family/UpdateFamily";
@@ -247,8 +74,8 @@ export default function OwnerFamilyPage() {
   // Fetch stories with infinite scroll
   const fetchStories = useCallback(async () => {
     if (!hasMore && page > 1) return;
-    
-    setStoriesLoading(true); 
+
+    setStoriesLoading(true);
     try {
       const res = await api.get(`/content/family/${familyId}/${sortMode}?page=${page}`);
       const newStories = res?.data?.data?.stories || [];
@@ -262,13 +89,13 @@ export default function OwnerFamilyPage() {
       if (newStories.length === 0) {
         setHasMore(false);
       }
-      
+
       if (page === 1 && newStories.length === 0) {
-           setInitialLoadError("No stories yet. Start preserving your memories!");
+        setInitialLoadError("No stories yet. Start preserving your memories!");
       } else {
-           setInitialLoadError(null);
+        setInitialLoadError(null);
       }
-      
+
     } catch (err) {
       console.error("Story Feed Fetch Error:", err);
       if (page === 1) {
@@ -281,10 +108,10 @@ export default function OwnerFamilyPage() {
 
   // Scroll handler
   const handleInfiniteScroll = useCallback(() => {
-    if (storiesLoading || !hasMore) return; 
+    if (storiesLoading || !hasMore) return;
 
     const isBottom = (window.innerHeight + document.documentElement.scrollTop + 100) >= document.documentElement.scrollHeight;
-    
+
     if (isBottom) {
       setPage(prev => prev + 1);
     }
@@ -328,9 +155,10 @@ export default function OwnerFamilyPage() {
 
   // Dashboard menu with icons
   const menuItems = [
-    { name: "Overview", component: <OverviewComponent 
-        stories={stories} 
-        groupedStories={groupedStories} 
+    {
+      name: "Overview", component: <OverviewComponent
+        stories={stories}
+        groupedStories={groupedStories}
         sortMode={sortMode}
         setSortMode={setSortMode}
         storiesLoading={storiesLoading}
@@ -388,14 +216,19 @@ export default function OwnerFamilyPage() {
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-purple-600 mb-1">Male Root</p>
               {maleRoot ? (
-                <div className="flex items-center gap-2">
+                <Link
+                  to={`/user/${maleRoot.user_id}`}
+                  className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50"
+                >
                   <img
                     src={maleRoot.profilePhoto}
                     alt={maleRoot.fullname}
                     className="w-6 h-6 rounded-full object-cover"
                   />
-                  <span className="text-sm text-gray-700 truncate">{maleRoot.fullname}</span>
-                </div>
+                  <span className="text-sm text-gray-700 truncate hover:text-purple-600">
+                    {maleRoot.fullname}
+                  </span>
+                </Link>
               ) : (
                 <span className="text-sm text-gray-500">N/A</span>
               )}
@@ -411,12 +244,18 @@ export default function OwnerFamilyPage() {
               <p className="text-xs font-semibold text-pink-600 mb-1">Female Root</p>
               {femaleRoot ? (
                 <div className="flex items-center gap-2">
-                  <img
-                    src={femaleRoot.profilePhoto}
-                    alt={femaleRoot.fullname}
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
-                  <span className="text-sm text-gray-700 truncate">{femaleRoot.fullname}</span>
+
+                  <Link
+                    to={`/user/${femaleRoot.user_id}`}
+                    className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50">
+                    <img
+                      src={femaleRoot.profilePhoto}
+                      alt={femaleRoot.fullname}
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                    <span className="text-sm text-gray-700 truncate">{femaleRoot.fullname}</span>
+                  </Link>
+
                 </div>
               ) : (
                 <span className="text-sm text-gray-500">N/A</span>
@@ -464,12 +303,16 @@ export default function OwnerFamilyPage() {
             <div className="grid grid-cols-2 gap-2">
               {memberships.slice(0, 6).map((m) => (
                 <div key={m.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                  <img
-                    src={m.user.profilePhoto || "https://via.placeholder.com/40"}
-                    alt={m.user.fullname}
-                    className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                  />
-                  <span className="text-xs text-gray-700 truncate">{m.user.fullname}</span>
+                  <Link
+                    to={`/user/${m.user.user_id}`}
+                    className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50">
+                    <img
+                      src={m.user.profilePhoto || "https://via.placeholder.com/40"}
+                      alt={m.user.fullname}
+                      className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                    />
+                    <span className="text-xs text-gray-700 truncate">{m.user.fullname}</span>
+                  </Link>
                 </div>
               ))}
               {memberships.length > 6 && (
@@ -494,11 +337,10 @@ export default function OwnerFamilyPage() {
                 <button
                   key={item.name}
                   onClick={() => setSelectedComponentName(item.name)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 text-left ${
-                    isActive
-                      ? "bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white shadow-md"
-                      : "text-gray-700 hover:bg-purple-50 border border-gray-100"
-                  }`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all duration-200 text-left ${isActive
+                    ? "bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white shadow-md"
+                    : "text-gray-700 hover:bg-purple-50 border border-gray-100"
+                    }`}
                 >
                   <div className={`${isActive ? "text-white" : "text-purple-600"}`}>
                     {item.icon}
@@ -519,16 +361,16 @@ export default function OwnerFamilyPage() {
 /* -------------------------------------------------------------------------- */
 /*                               OVERVIEW COMPONENT                           */
 /* -------------------------------------------------------------------------- */
-const OverviewComponent = ({ 
-  stories, 
-  groupedStories, 
-  sortMode, 
-  setSortMode, 
-  storiesLoading, 
-  hasMore, 
-  initialLoadError, 
-  familyName, 
-  currentUserId 
+const OverviewComponent = ({
+  stories,
+  groupedStories,
+  sortMode,
+  setSortMode,
+  storiesLoading,
+  hasMore,
+  initialLoadError,
+  familyName,
+  currentUserId
 }) => {
   // Loading state
   if (storiesLoading && stories.length === 0 && initialLoadError === null) {
@@ -547,8 +389,8 @@ const OverviewComponent = ({
         <div className="flex gap-3">
           <button
             className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${sortMode === "desc"
-                ? "bg-purple-600 text-white"
-                : "bg-gray-200 text-gray-800"
+              ? "bg-purple-600 text-white"
+              : "bg-gray-200 text-gray-800"
               } hover:bg-purple-100`}
             onClick={() => setSortMode("desc")}
           >
@@ -556,8 +398,8 @@ const OverviewComponent = ({
           </button>
           <button
             className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${sortMode === "asc"
-                ? "bg-purple-600 text-white"
-                : "bg-gray-200 text-gray-800"
+              ? "bg-purple-600 text-white"
+              : "bg-gray-200 text-gray-800"
               } hover:bg-purple-100`}
             onClick={() => setSortMode("asc")}
           >
@@ -626,7 +468,7 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
   const uploader = story.uploaded_by || {
     fullname: "Unknown User",
     username: "unknown_user",
-    profilePhoto: "https://via.placeholder.com/40" 
+    profilePhoto: "https://via.placeholder.com/40"
   };
 
   const timeAgo = useMemo(() => {
@@ -645,19 +487,19 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
     if (!currentUserId) return;
 
     const endpoint = isLiked ? `/unlike/${story._id}` : `/like/${story._id}`;
-    
+
     setIsLiked(prev => !prev);
     setLikes(prev => prev + (isLiked ? -1 : 1));
 
     try {
-      await api.post(endpoint); 
+      await api.post(endpoint);
     } catch (err) {
       console.error("Like toggle failed:", err);
       setIsLiked(prev => !prev);
       setLikes(prev => prev - (isLiked ? -1 : 1));
     }
   };
-  
+
   const renderMedia = (mediaItem) => {
     if (!mediaItem) return null;
     switch (mediaItem.type) {
@@ -666,10 +508,10 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
       case "video":
         return (
           <div className="relative w-full h-full bg-black">
-            <video 
-              src={mediaItem.url} 
+            <video
+              src={mediaItem.url}
               className="w-full h-full object-contain"
-              controls 
+              controls
               poster={mediaItem.thumbnailUrl}
             />
           </div>
@@ -677,7 +519,7 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
       case "audio":
         return (
           <div className="flex flex-col items-center justify-center min-h-[150px] bg-purple-100/50 rounded-lg p-4 border border-purple-200">
-            <Volume2 size={32} className="text-purple-600 mb-3"/>
+            <Volume2 size={32} className="text-purple-600 mb-3" />
             <p className="text-gray-700 font-medium mb-2">Audio Memory</p>
             <audio controls className="w-full max-w-xs">
               <source src={mediaItem.url} type="audio/mp3" />
@@ -704,20 +546,38 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
     e.preventDefault();
     setCurrentMediaIndex(prev => (prev - 1 + totalMedia) % totalMedia);
   };
-  
+
   const cleanedTags = (story.tags || []).map(tag => tag.replace(/[\[\]"]/g, '')).filter(t => t.length > 0);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg border border-purple-100 mb-6 w-full transition-shadow duration-300 hover:shadow-xl">
-      
+
       {/* Header */}
       <div className="flex items-start justify-between mb-3 pb-3 border-b border-gray-100">
         <div className="flex items-center">
-          <img src={uploader.profilePhoto || "https://via.placeholder.com/40"} alt={uploader.fullname} className="w-10 h-10 rounded-full mr-3 object-cover border-2 border-purple-400" />
+
+          <Link
+            to={`/user/${uploader.user_id}`}
+            className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50"
+          >
+            <img src={uploader.profilePhoto || "https://via.placeholder.com/40"} alt={uploader.fullname} className="w-10 h-10 rounded-full mr-3 object-cover border-2 border-purple-400" />
+
+          </Link>
+
+
           <div className="flex flex-col">
-            <p className="font-semibold text-lg text-gray-800 hover:text-purple-600 transition-colors cursor-pointer">{uploader.fullname}</p>
+
+            <Link
+              to={`/user/${uploader.user_id}`}
+              className="flex items-center gap-2 p-1 rounded-md transition-transform duration-200 hover:scale-105 hover:bg-gray-50"
+            >
+              <p className="font-semibold text-lg text-gray-800 hover:text-purple-600 transition-colors cursor-pointer">{uploader.fullname}</p>
+            </Link>
+
+
+
             <p className="text-xs text-gray-500 flex items-center">
-              @{uploader.username} • <Clock size={12} className="ml-1 mr-1"/> {timeAgo} • {familyName}
+              @{uploader.username} • <Clock size={12} className="ml-1 mr-1" /> {timeAgo} • {familyName}
             </p>
           </div>
         </div>
@@ -742,7 +602,7 @@ const StoryCard = React.memo(({ story, currentUserId, familyName }) => {
       <div className="mb-4">
         <div className={`relative w-full ${currentMedia?.type !== 'text' && currentMedia?.type !== 'audio' ? 'aspect-video' : ''} rounded-lg overflow-hidden shadow-inner bg-gray-100/50`}>
           {renderMedia(currentMedia)}
-          
+
           {/* Carousel Controls */}
           {totalMedia > 1 && (
             <>

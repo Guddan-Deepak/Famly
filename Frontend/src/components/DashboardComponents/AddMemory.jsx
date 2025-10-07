@@ -6,18 +6,6 @@ import api from "../../utils/axios";
 
 const AddMemory = ({ familyId }) => {
   // --- Start Mock/Placeholder Functions for Context (Replace with your actual imports) ---
-  const useAuth = () => ({ isAuthenticated: true, user: { user_id: 1 } }); 
-  const api = {
-    post: async (url, data, config) => {
-      console.log("Submitting to:", url);
-      console.log("FormData keys:", Array.from(data.keys()));
-      console.log("--- Frontend Debug Output (mediaText array sent to backend) ---");
-      // Logging mediaText for debug, as you requested:
-      console.log(Array.from(data.getAll("mediaText"))); 
-      // Simulate successful API call
-      return new Promise(resolve => setTimeout(() => resolve({ data: { message: "Story created" } }), 1000));
-    }
-  };
   // --- End Mock/Placeholder Functions ---
 
   const { isAuthenticated } = useAuth();
