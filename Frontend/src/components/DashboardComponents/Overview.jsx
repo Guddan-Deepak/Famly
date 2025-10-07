@@ -9,18 +9,7 @@ import { Link, useNavigate } from "react-router-dom"; // For story links
 // Throttle Utility: Limits how often a function can run (e.g., scroll handler)
 // We'll run the scroll check only once every 200 milliseconds.
 // ====================================================================
-const throttle = (func, limit) => {
-  let inThrottle;
-  return function () {
-    const args = arguments;
-    const context = this;
-    if (!inThrottle) {
-      func.apply(context, args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  }
-}
+
 
 // ====================================================================
 // StoryCard Component: (No changes needed, kept for completeness)
@@ -216,14 +205,14 @@ const Overview = () => {
   const currentUserUserId = user?.user_id;
   console.log(user)
   const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
+ 
 
   // Recent Stories state for infinite scroll
   const [stories, setStories] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loadingStories, setLoadingStories] = useState(false);
-  const [noMoreStories, setNoMoreStories] = useState(false);
+const [page, setPage] = useState(1);
+const [loading, setLoading] = useState(true);
+const [hasMore, setHasMore] = useState(true);
+const [initialLoadError, setInitialLoadError] = useState(null);
   const navigate = useNavigate();
 
   // Fetch user profile data
@@ -245,74 +234,64 @@ const Overview = () => {
   }, [currentUserUserId]);
 
   // Fetch stories function with pagination logic
-  const fetchStories = useCallback(
-    async (pageNum = 1) => {
-      // EARLY EXIT: Stop if already loading or we know we hit the end
-      if (loadingStories || noMoreStories || (pageNum > totalPages && pageNum !== 1)) return;
+ 
+const fetchStories = useCallback(async () => {
+  if (!hasMore && page > 1) return;
+  
+  setLoading(true); 
+  try {
+    const res = await api.get(`/content/user-recent-stories?page=${page}&limit=5`);
+    const newStories = res?.data?.data?.stories || [];
 
-      setLoadingStories(true);
-      try {
-        const res = await api.get(`/content/user-recent-stories?page=${pageNum}&limit=5`);
-        const fetchedStories = res.data.data.stories;
-        const newTotalPages = res.data.data.pagination.totalPages;
+    setStories(prev => {
+      const newStoryIds = new Set(prev.map(s => s._id));
+      const filteredNewStories = newStories.filter(s => !newStoryIds.has(s._id));
+      return [...prev, ...filteredNewStories];
+    });
 
-        // Avoid adding duplicate stories using Set for efficiency
-        setStories((prev) => {
-          const existingIds = new Set(prev.map(s => s._id));
-          const newStories = fetchedStories.filter(
-            (story) => !existingIds.has(story._id)
-          );
-          return [...prev, ...newStories];
-        });
-
-        setTotalPages(newTotalPages);
-
-        // Check if the page we just requested is the last page
-        if (pageNum >= newTotalPages) {
-          setNoMoreStories(true);
-        } else {
-          setNoMoreStories(false);
-        }
-      } catch (err) {
-        console.error("Error fetching stories:", err);
-      } finally {
-        setLoadingStories(false);
-      }
-    },
-    // Dependencies added for strict useCallback memoization
-    [loadingStories, totalPages, noMoreStories]
-  );
+    if (newStories.length === 0) {
+      setHasMore(false);
+    }
+    
+    if (page === 1 && newStories.length === 0) {
+         setInitialLoadError("No stories yet. Start preserving your memories!");
+    } else {
+         setInitialLoadError(null);
+    }
+    
+  } catch (err) {
+    console.error("Story Feed Fetch Error:", err);
+    if (page === 1) {
+      setInitialLoadError("Failed to load stories. Please check your network or try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+}, [page, hasMore]);
 
   // Trigger initial and subsequent page loads
   useEffect(() => {
-    fetchStories(page);
-  }, [fetchStories, page]);
+  fetchStories();
+}, [fetchStories]);
 
   // Infinite Scroll Handler
-  const handleInfiniteScroll = useCallback(() => {
-    // Stop if already loading OR if current page is the last page
-    if (loadingStories || page >= totalPages) return;
+ const handleInfiniteScroll = useCallback(() => {
+  if (loading || !hasMore) return; 
 
-    if (
-      window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.scrollHeight
-    ) {
-      setPage((prev) => prev + 1);
-    }
-  }, [page, totalPages, loadingStories]);
+  const isBottom = (window.innerHeight + document.documentElement.scrollTop + 100) >= document.documentElement.scrollHeight;
+  
+  if (isBottom) {
+    setPage(prev => prev + 1);
+  }
+}, [loading, hasMore]);
 
   // 1. Throttle the memoized scroll handler
-  const throttledScrollHandler = throttle(handleInfiniteScroll, 200);
+ 
 
-  // 2. Attach and clean up scroll listener using the throttled handler
-  useEffect(() => {
-    // Attach the THROTTLED function
-    window.addEventListener("scroll", throttledScrollHandler);
-
-    return () => {
-      // Clean up the THROTTLED function
-      window.removeEventListener("scroll", throttledScrollHandler);
-    };
-  }, [throttledScrollHandler]); // Depend on the throttled handler
+ useEffect(() => {
+  window.addEventListener("scroll", handleInfiniteScroll);
+  return () => window.removeEventListener("scroll", handleInfiniteScroll);
+}, [handleInfiniteScroll]);
 
   const { user: profile, families = [] } = profileData || {};
   const adminFamily = families.find((f) => f.Membership?.role === "admin");
@@ -470,29 +449,36 @@ const Overview = () => {
         </div>
 
         {/* LOADING STATE MESSAGES */}
-        {(loadingStories && stories.length === 0) && (
-          <p className="text-center mt-8 text-purple-600 font-medium">
-            Fetching initial stories...
-          </p>
-        )}
+        {loading && stories.length === 0 && initialLoadError === null && (
+  <p className="text-center mt-8 text-purple-600 font-medium">
+    Loading your stories...
+  </p>
+)}
 
-        {(loadingStories && stories.length > 0) && (
-          <p className="text-center mt-8 text-purple-600 font-medium animate-pulse">
-            Loading more stories...
-          </p>
-        )}
+{loading && hasMore && (
+  <div className="text-center py-4 text-purple-600 font-bold mt-4">
+    Loading more stories...
+  </div>
+)}
 
-        {(!loadingStories && noMoreStories && stories.length > 0) && (
-          <p className="text-center mt-8 text-purple-600 font-medium border-t pt-4 border-purple-200">
-            You've reached the end of your recent stories. 📖
-          </p>
-        )}
+{!hasMore && (
+  <div className="text-center py-8 text-gray-500 border-t border-purple-200 mt-6">
+    You've reached the end of your stories! 🎉
+  </div>
+)}
 
-        {(!loadingStories && stories.length === 0 && !noMoreStories) && (
-          <p className="text-center mt-8 text-gray-500 font-medium">
-            No recent stories to display. Start sharing your family's memories!
-          </p>
-        )}
+       {initialLoadError && stories.length === 0 && (
+  <p className="text-center mt-8 text-red-600 font-medium">
+    {initialLoadError}
+  </p>
+)}
+
+{!loading && stories.length === 0 && !initialLoadError && (
+  <p className="text-center mt-8 text-gray-500 font-medium">
+    No recent stories to display. Start sharing your family's memories!
+  </p>
+)}
+
       </div>
     </div>
   );

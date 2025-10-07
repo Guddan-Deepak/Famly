@@ -393,7 +393,7 @@ const getFamilyStoriesAsc = asyncHandler(async (req, res) => {
   // 3️⃣ Fetch users from PostgreSQL including profilePhoto
   const users = await User.findAll({
     where: { user_id: userIds },
-    attributes: ["user_id", "fullname", "profilePhoto"],
+    attributes: ["user_id", "fullname", "profilePhoto","username"],
     raw: true,
   });
 
@@ -403,6 +403,7 @@ const getFamilyStoriesAsc = asyncHandler(async (req, res) => {
     userMap[u.user_id] = {
       fullname: u.fullname,
       profilePhoto: u.profilePhoto || null,
+      username:u.username||null,
     };
   });
 
@@ -462,7 +463,7 @@ const getFamilyStoriesDesc = asyncHandler(async (req, res) => {
   // 3️⃣ Fetch users from PostgreSQL including profilePhoto
   const users = await User.findAll({
     where: { user_id: userIds },
-    attributes: ["user_id", "fullname", "profilePhoto"],
+    attributes: ["user_id", "fullname", "profilePhoto","username"],
     raw: true,
   });
 
@@ -472,6 +473,7 @@ const getFamilyStoriesDesc = asyncHandler(async (req, res) => {
     userMap[u.user_id] = {
       fullname: u.fullname,
       profilePhoto: u.profilePhoto || null,
+      username:u.username||null,
     };
   });
 

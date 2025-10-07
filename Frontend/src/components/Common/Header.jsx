@@ -30,9 +30,12 @@ const Header = () => {
     <header className={`sticky top-0 z-50 backdrop-blur-lg transition-all duration-300 
       ${theme === "dark" ? "bg-gray-900/90 border-b border-gray-700 shadow-md"
         : "bg-white/80 border-b border-gray-200 shadow-md"}`}>
+      
+      {/* Container - Switched to a flex layout with space-between on mobile/logo, then a sophisticated split for desktop */}
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        
+        {/* Logo/Left Side - Must be first for mobile ordering */}
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
           <img
             src={famlyLogo}
             alt="Logo"
@@ -45,22 +48,39 @@ const Header = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 font-semibold text-lg cursor-pointer">
-          {["Home", "About", "Contact"].map((page) => {
-            const path = page === "Home" ? "/" : `/${page.toLowerCase()}`;
-            return (
+        {/* Desktop Navigation - Centered Main Links */}
+        {/* We use flex-grow and justify-center to push this section to the middle */}
+        <nav className="hidden md:flex flex-grow items-center justify-center font-semibold text-lg cursor-pointer">
+          <div className="flex items-center gap-6">
+            {["Home", "About", "Contact"].map((page) => {
+              const path = page === "Home" ? "/" : `/${page.toLowerCase()}`;
+              return (
+                <Link
+                  key={page}
+                  to={path}
+                  className={`transition-colors duration-200 hover:underline
+            ${theme === "dark" ? "text-gray-200 hover:text-white" : "text-purple-700 hover:text-purple-500"}`}
+                >
+                  {page}
+                </Link>
+              );
+            })}
+            
+            {user && (
+              /* Private Group Link (Desktop) - Placed with other centered links */
               <Link
-                key={page}
-                to={path}
+                to="/private-group"
                 className={`transition-colors duration-200 hover:underline
-        ${theme === "dark" ? "text-gray-200 hover:text-white" : "text-purple-700 hover:text-purple-500"}`}
+                  ${theme === "dark" ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"}`}
               >
-                {page}
+                Private Group
               </Link>
-            );
-          })}
+            )}
+          </div>
+        </nav>
 
+        {/* Right Side - Auth and Theme Toggle */}
+        <div className="hidden md:flex items-center gap-6 flex-shrink-0">
           {!user ? (
             <Link
               to="/auth"
@@ -110,9 +130,9 @@ const Header = () => {
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-        </nav>
+        </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button (Stays on the far right on mobile) */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className={`md:hidden p-2 rounded-full transition-all hover:scale-110
@@ -130,7 +150,7 @@ const Header = () => {
           {["Home", "About", "Contact"].map((page) => (
             <Link
               key={page}
-              to={`/${page.toLowerCase()}`}
+              to={page === "Home" ? "/" : `/${page.toLowerCase()}`}
               onClick={() => setMenuOpen(false)}
               className={`block font-medium transition-colors duration-200 hover:underline
                 ${theme === "dark" ? "text-gray-200 hover:text-white" : "text-purple-700 hover:text-purple-500"}`}
@@ -138,6 +158,18 @@ const Header = () => {
               {page}
             </Link>
           ))}
+          
+          {user && (
+            /* Private Group Button (Mobile) - Visible when logged in */
+            <Link
+              to="/private-group"
+              onClick={() => setMenuOpen(false)}
+              className={`block font-medium transition-colors duration-200 hover:underline
+                ${theme === "dark" ? "text-green-400 hover:text-green-300" : "text-green-600 hover:text-green-700"}`}
+            >
+              Private Group
+            </Link>
+          )}
 
           {!user ? (
             <Link
