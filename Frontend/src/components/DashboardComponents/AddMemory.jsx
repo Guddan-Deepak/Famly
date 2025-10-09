@@ -321,7 +321,8 @@ const AddMemory = ({ familyId, onSuccess, onClose }) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-gradient-to-br from-indigo-100 to-purple-200 shadow-xl shadow-purple-500/20 rounded-2xl p-8 mt-6 border border-purple-200">
+    <div className=" max-w-3xl mx-auto bg-gradient-to-br from-indigo-100 to-purple-200 shadow-xl shadow-purple-500/20 rounded-2xl p-8 mt-6 border border-purple-200">
+      
       <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-8">
         ✨ Create a New Memory ✨
       </h2>

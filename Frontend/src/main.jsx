@@ -17,6 +17,8 @@ import MemberFamilyPage from './pages/family/MemberFamilyPage.jsx'
 import OwnerFamilyPage from './pages/family/OwnerFamilyPage.jsx'
 import CreateFamilyForm from './components/family/FamilyForm.jsx'
 import JoinFamilyCard from './components/family/JoinFamilythroughInvitationCode.jsx'
+import StoryPage from './pages/Story/Story.jsx'
+import FamilyStoriesSearch from './pages/stories/SearchStories.jsx'
 const router=createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App />} errorElement>
@@ -24,10 +26,13 @@ const router=createBrowserRouter(
       <Route path='auth' element={<AuthPage/>} />
       <Route path='dashboard' element={<DashboardLayout/>} />
       <Route path='overview' element={<Overview/>} />
+      <Route path="stories/:storyId" element={<StoryPage />} />
       <Route path='private-group' element={<PrivateGroups/>} />
       <Route path='user/:user_id' element={<UserProfile/>} />
       <Route path='contact' element={<Contact/>} />
       <Route path='about' element={<About/>} />
+      <Route path='/family/:familyId/search' element={<FamilyStoriesSearch/>} />
+
 
 
         <Route path="notifications" element={<NotificationsPage />} />

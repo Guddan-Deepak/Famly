@@ -268,17 +268,17 @@ const deleteStory = asyncHandler(async (req, res) => {
 const unlikeStory = asyncHandler(async (req, res) => {
   const { storyId } = req.params;
 
-  
   if (!storyId || !mongoose.Types.ObjectId.isValid(storyId)) {
     throw new ApiError(404, "Invalid or missing Story ID");
   }
 
-
   const story = await Story.findById(storyId);
   if (!story) throw new ApiError(404, "Story not found");
 
-  const userId = req.user.user_id.toString();
-  story.liked_by = story.liked_by.filter(id => id.toString() !== userId);
+  const userId = req.user.user_id; // Don't convert to string
+  
+  // Convert both to numbers for comparison
+  story.liked_by = story.liked_by.filter(id => Number(id) !== Number(userId));
 
   await story.save();
 
@@ -631,18 +631,99 @@ const updateStory = asyncHandler(async (req, res) => {
 const getStory = asyncHandler(async (req, res) => {
   const { storyId } = req.params;
 
-  
   if (!storyId || !mongoose.Types.ObjectId.isValid(storyId)) {
     throw new ApiError(404, "Invalid or missing Story ID");
   }
 
-  // Fetch the story
+  // 1️⃣ Fetch the story from MongoDB
   const story = await Story.findById(storyId);
   if (!story) throw new ApiError(404, "Story not found");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, story, "Story fetched successfully!"));
+  try {
+    // 2️⃣ Fetch user and family info in parallel
+    const [userResult, familyResult] = await Promise.allSettled([
+      // Fetch user info
+      User.findOne({
+        where: { user_id: story.uploaded_by },
+        attributes: ['user_id', 'fullname', 'username', 'profilePhoto', 'email'],
+        raw: true
+      }),
+      // Fetch family info
+      Family.findOne({
+        where: { family_id: story.family_id },
+        attributes: ['family_id', 'family_name', 'familyPhoto', 'description', 'created_by'],
+        raw: true
+      })
+    ]);
+
+    // 3️⃣ Process user info
+    const userInfo = userResult.status === 'fulfilled' && userResult.value 
+      ? {
+          user_id: userResult.value.user_id,
+          fullname: userResult.value.fullname,
+          username: userResult.value.username,
+          profilePhoto: userResult.value.profilePhoto,
+          email: userResult.value.email
+        }
+      : {
+          user_id: story.uploaded_by,
+          fullname: "Unknown User",
+          username: "unknown",
+          profilePhoto: null,
+          email: null
+        };
+
+    // 4️⃣ Process family info
+    const familyInfo = familyResult.status === 'fulfilled' && familyResult.value
+      ? {
+          family_id: familyResult.value.family_id,
+          family_name: familyResult.value.family_name,
+          familyPhoto: familyResult.value.familyPhoto,
+          description: familyResult.value.description,
+          created_by: familyResult.value.created_by
+        }
+      : {
+          family_id: story.family_id,
+          family_name: "Unknown Family",
+          familyPhoto: null,
+          description: null,
+          created_by: null
+        };
+
+    // 5️⃣ Create enriched story object
+    const enrichedStory = {
+      ...story.toObject(),
+      uploaded_by: userInfo,
+      family_info: familyInfo
+    };
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, enrichedStory, "Story fetched successfully with user and family info!"));
+
+  } catch (err) {
+    console.error("Error fetching additional info:", err);
+    // Fallback: return story without additional info
+    const fallbackStory = {
+      ...story.toObject(),
+      uploaded_by: {
+        user_id: story.uploaded_by,
+        fullname: "Unknown User",
+        username: "unknown",
+        profilePhoto: null
+      },
+      family_info: {
+        family_id: story.family_id,
+        family_name: "Unknown Family",
+        familyPhoto: null,
+        description: null
+      }
+    };
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, fallbackStory, "Story fetched with limited info!"));
+  }
 });
 
 // fetches recent stories (posts/memories) from all families that the logged-in user belongs to,
@@ -890,7 +971,7 @@ const extractTagsFromQuery = (query) => {
     limit,
     totalPages: 0,
   };
-  const data = result[0].data;
+  let data = result[0].data;
 
    if (data.length > 0) {
         // 3️⃣ Collect all unique uploader IDs from the search results

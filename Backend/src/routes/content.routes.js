@@ -11,6 +11,7 @@ import {
   getStory,
   getRecentStories,
   getUserRecentStories,
+  searchStories
 } from "../controllers/content.controller.js";
 
 import { upload } from "../middlewares/multer.middleware.js";
@@ -49,6 +50,7 @@ router.get("/:storyId", verifyJWT, getStory);
 
 
 router.put("/update/:storyId", verifyJWT, updateStory);
+router.get("/search/:familyId",verifyJWT,searchStories)
 
 
 router.get("/family/:familyId/asc", verifyJWT, getFamilyStoriesAsc);
@@ -56,7 +58,7 @@ router.get("/family/:familyId/desc", verifyJWT, getFamilyStoriesDesc);
 
 
 
-// router.get("/:family_id/search")
+router.get("/:family_id/search",searchStories);
 
 
 export default router;
