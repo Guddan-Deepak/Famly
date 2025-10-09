@@ -3,15 +3,15 @@ import React, { useState } from "react";
 import api from "../../utils/axios";
 
 export default function AddRootMemberCard() {
-  const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleAddRootMember = async (e) => {
     e.preventDefault();
 
-    if (!userId || isNaN(userId)) {
-      setMessage({ type: "error", text: "Please enter a valid User ID" });
+    if (!username.trim()) {
+      setMessage({ type: "error", text: "Please enter a valid username" });
       return;
     }
 
@@ -21,11 +21,11 @@ export default function AddRootMemberCard() {
 
       // Call backend to add root member
       const res = await api.post(`/family/add-root-member`, {
-        user_id: Number(userId),
+        username: username.trim(),
       });
-      console.log("hhi",userId);
+      console.log("Username:", username);
       setMessage({ type: "success", text: "Root member added successfully!" });
-      setUserId(""); // Reset input
+      setUsername(""); // Reset input
       console.log("Root member added:", res.data);
     } catch (err) {
       console.error("Error adding root member:", err);
@@ -43,7 +43,7 @@ export default function AddRootMemberCard() {
         Add Root Member
       </h2>
       <p className="text-gray-600 text-center mb-6">
-        Add a root member to this family by entering their User ID.
+        Add a root member to this family by entering their username.
       </p>
 
       {message.text && (
@@ -61,17 +61,17 @@ export default function AddRootMemberCard() {
       <form onSubmit={handleAddRootMember} className="space-y-4">
         <div>
           <label
-            htmlFor="userId"
+            htmlFor="username"
             className="block text-sm font-semibold text-gray-700 mb-2"
           >
-            Enter User ID
+            Enter Username
           </label>
           <input
-            id="userId"
-            type="number"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="e.g., 42"
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="e.g., jane_smith"
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             required
           />
