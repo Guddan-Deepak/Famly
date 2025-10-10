@@ -137,6 +137,11 @@ Interactive timelines, and dynamic family trees, Famly makes storytelling engagi
   <li><code>GET /content/user-recent-stories</code> – Fetch recent stories with pagination</li>
   <li><code>POST /content/upload</code> – Upload a story (text, image, audio, video)</li>
 </ul>
+<img width="1896" height="870" alt="Screenshot 2025-10-11 045327" src="https://github.com/user-attachments/assets/f2364b39-36bb-4894-b019-af513797a153" />
+<img width="1884" height="853" alt="Screenshot 2025-10-11 045340" src="https://github.com/user-attachments/assets/2c1faa44-bf36-4a46-a91e-d9fa8254fff4" />
+<img width="1722" height="864" alt="Screenshot 2025-10-11 045356" src="https://github.com/user-attachments/assets/d18f399e-b219-4ee3-888b-c90f1239d68a" />
+<img width="1513" height="857" alt="Screenshot 2025-10-11 045414" src="https://github.com/user-attachments/assets/68e90fe0-16ef-42cd-98a1-d5aab8d6c6fa" />
+<img width="1853" height="855" alt="image" src="https://github.com/user-attachments/assets/d7ab18b5-b30f-40c4-b963-dac5ebfa2673" />
 
 <h2>📄 License</h2>
 <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
