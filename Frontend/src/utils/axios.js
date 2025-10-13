@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuthData, saveAuthData, clearAuthData } from "./auth.utils";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_SERVER,
+  baseURL: "/api/v1",
   withCredentials: true,
 });
 
